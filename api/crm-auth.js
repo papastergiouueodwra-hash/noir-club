@@ -31,7 +31,14 @@ export default async function handler(req, res) {
     if (!process.env.CRM_PASSWORD || !process.env.CRM_SESSION_SECRET) {
       return res.status(500).json({ error: 'CRM authentication is not configured.' });
     }
-    if (!crypto.timingSafeEqual(Buffer.from(password), Buffer.from(process.env.CRM_PASSWORD))) {
+
+    const passwordBuf = Buffer.from(password);
+    const expectedPasswordBuf = Buffer.from(process.env.CRM_PASSWORD);
+    const validPassword =
+      passwordBuf.length === expectedPasswordBuf.length &&
+      crypto.timingSafeEqual(passwordBuf, expectedPasswordBuf);
+
+    if (!validPassword) {
       return res.status(401).json({ error: 'Incorrect password.' });
     }
 
