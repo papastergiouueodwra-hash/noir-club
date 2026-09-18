@@ -160,26 +160,46 @@ document.addEventListener('keydown', e => {
   }
 });
 
-reservationForm?.addEventListener('submit', e => {
+reservationForm?.addEventListener('submit', async e => {
   e.preventDefault();
 
+  const submitButton = reservationForm.querySelector('.reservation-submit');
   const formData = new FormData(reservationForm);
   const reservation = Object.fromEntries(formData.entries());
-  reservation.createdAt = new Date().toISOString();
 
-  const savedReservations = JSON.parse(localStorage.getItem('noirReservations') || '[]');
-  savedReservations.push(reservation);
-  localStorage.setItem('noirReservations', JSON.stringify(savedReservations));
+  if (reservation.drink === 'Drinks') {
+    delete reservation.bottles;
+    delete reservation.table;
+  }
 
-  const formattedDate = new Date(reservation.date + 'T00:00:00').toLocaleDateString('en-GB', {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric'
-  });
+  if (submitButton) {
+    submitButton.disabled = true;
+    submitButton.textContent = 'SAVING...';
+  }
 
-  // Confirmation copy is intentionally fixed and premium; the reserved date remains stored in localStorage.
-  reservationForm.hidden = true;
-  reservationSuccess.hidden = false;
+  try {
+    const response = await fetch('/api/reservations', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(reservation)
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || 'Reservation could not be saved.');
+    }
+
+    reservationForm.hidden = true;
+    reservationSuccess.hidden = false;
+  } catch (error) {
+    alert(error.message || 'Reservation could not be completed. Please try again.');
+  } finally {
+    if (submitButton) {
+      submitButton.disabled = false;
+      submitButton.textContent = 'CONFIRM RESERVATION';
+    }
+  }
 });
 
 /* AI ASSISTANT */
