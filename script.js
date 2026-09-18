@@ -75,9 +75,23 @@ const drinkType = reservationForm?.querySelector('#drinkType');
 const tableTypeField = reservationForm?.querySelector('#tableTypeField');
 const tableType = reservationForm?.querySelector('#tableType');
 
+function resetReservationView() {
+  if (!reservationForm || !reservationSuccess) return;
+  reservationForm.reset();
+  reservationForm.hidden = false;
+  reservationSuccess.hidden = true;
+  updateTableTypeVisibility();
+}
+
 function updateTableTypeVisibility() {
   const bottleSelected = drinkType?.value === 'Bottle';
-  if (tableTypeField) tableTypeField.hidden = !bottleSelected;
+
+  if (tableTypeField) {
+    tableTypeField.hidden = !bottleSelected;
+    tableTypeField.style.display = bottleSelected ? '' : 'none';
+    tableTypeField.setAttribute('aria-hidden', bottleSelected ? 'false' : 'true');
+  }
+
   if (tableType) {
     tableType.required = bottleSelected;
     if (!bottleSelected) tableType.value = '';
@@ -87,11 +101,13 @@ function updateTableTypeVisibility() {
 drinkType?.addEventListener('change', updateTableTypeVisibility);
 
 function openReservation() {
+  resetReservationView();
   updateTableTypeVisibility();
   reservationModal.classList.add('open');
   reservationModal.setAttribute('aria-hidden', 'false');
   document.body.style.overflow = 'hidden';
-  if (reservationDate && !reservationDate.value) {
+
+  if (reservationDate) {
     reservationDate.min = new Date().toISOString().split('T')[0];
   }
 }
@@ -100,20 +116,13 @@ function closeReservation() {
   reservationModal.classList.remove('open');
   reservationModal.setAttribute('aria-hidden', 'true');
   document.body.style.overflow = '';
+  resetReservationView();
 }
 
 startReservation?.addEventListener('click', openReservation);
 
 document.querySelectorAll('[data-close-reservation]').forEach(button => {
-  button.addEventListener('click', () => {
-    closeReservation();
-    if (reservationForm.hidden) {
-      reservationForm.reset();
-      reservationForm.hidden = false;
-      reservationSuccess.hidden = true;
-      updateTableTypeVisibility();
-    }
-  });
+  button.addEventListener('click', closeReservation);
 });
 
 document.addEventListener('keydown', e => {
