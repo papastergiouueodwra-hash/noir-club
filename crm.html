@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NOIR CLUB — CRM</title>
+  <meta name="description" content="NOIR CLUB reservation management dashboard.">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .crm-page{min-height:100vh;padding:110px 5vw 60px}
+    .crm-top{display:flex;justify-content:space-between;align-items:flex-end;gap:25px;margin-bottom:38px}
+    .crm-title{font-family:'Cormorant Garamond',serif;font-size:clamp(3.5rem,7vw,6rem);font-weight:500;line-height:.8}
+    .crm-sub{margin-top:14px;color:var(--muted);font-size:.72rem;letter-spacing:.08em}
+    .crm-back{border:1px solid var(--line);padding:12px 20px;color:var(--gold-bright);font-size:.62rem;font-weight:600;letter-spacing:.18em}
+    .crm-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:28px}
+    .crm-stat{padding:22px;border:1px solid var(--line);background:rgba(255,255,255,.025)}
+    .crm-stat span{display:block;color:var(--muted);font-size:.52rem;letter-spacing:.2em}
+    .crm-stat strong{display:block;margin-top:12px;font-family:'Cormorant Garamond',serif;font-size:2.5rem;font-weight:500;color:var(--white)}
+    .crm-panel{border:1px solid var(--line);background:rgba(255,255,255,.02);overflow:hidden}
+    .crm-toolbar{display:flex;gap:12px;padding:18px;border-bottom:1px solid rgba(245,242,236,.08);flex-wrap:wrap}
+    .crm-toolbar input,.crm-toolbar select{height:44px;border:1px solid rgba(245,242,236,.15);background:#09070a;color:var(--white);padding:0 13px;font:500 .65rem Montserrat,sans-serif;outline:none}
+    .crm-toolbar input{flex:1;min-width:220px}.crm-toolbar select{min-width:160px}
+    .crm-table-wrap{overflow:auto}.crm-table{width:100%;border-collapse:collapse;min-width:1050px}
+    .crm-table th{padding:14px;text-align:left;color:var(--gold);font-size:.5rem;letter-spacing:.17em;font-weight:600;border-bottom:1px solid rgba(245,242,236,.08)}
+    .crm-table td{padding:15px 14px;border-bottom:1px solid rgba(245,242,236,.06);font-size:.65rem;color:rgba(245,242,236,.82)}
+    .crm-table tr:last-child td{border-bottom:0}.crm-table tbody tr:hover{background:rgba(201,92,255,.045)}
+    .crm-name{color:var(--white);font-weight:600}.crm-muted{color:var(--muted)}
+    .crm-badge{display:inline-flex;padding:5px 8px;border:1px solid rgba(245,242,236,.14);font-size:.47rem;letter-spacing:.1em}
+    .crm-badge.vip{border-color:rgba(201,92,255,.55);color:var(--gold-bright);box-shadow:0 0 10px rgba(201,92,255,.08)}
+    .crm-badge.confirmed{color:#c9ffd5;border-color:rgba(201,255,213,.25)}
+    .crm-badge.pending{color:#ffe6a3;border-color:rgba(255,230,163,.25)}
+    .crm-badge.cancelled{color:#ffb4b4;border-color:rgba(255,180,180,.25)}
+    .crm-actions{display:flex;gap:7px}.crm-action{border:1px solid rgba(245,242,236,.14);background:transparent;color:var(--white);padding:7px 9px;font-size:.48rem;letter-spacing:.1em}.crm-action:hover{border-color:var(--gold);color:var(--gold-bright)}
+    .crm-empty{padding:70px 20px;text-align:center;color:var(--muted);font-size:.7rem}
+    .crm-modal{position:fixed;inset:0;z-index:100;display:none;align-items:center;justify-content:center;padding:20px}.crm-modal.open{display:flex}
+    .crm-modal-bg{position:absolute;inset:0;background:rgba(0,0,0,.8);backdrop-filter:blur(10px)}
+    .crm-detail{position:relative;z-index:1;width:min(620px,100%);max-height:90vh;overflow:auto;padding:35px;border:1px solid var(--line);background:#09070a;box-shadow:0 0 50px rgba(201,92,255,.16)}
+    .crm-detail h2{font-family:'Cormorant Garamond',serif;font-size:3rem;font-weight:500}.crm-detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:25px}.crm-detail-item{padding:13px;border:1px solid rgba(245,242,236,.09)}.crm-detail-item span{display:block;color:var(--gold);font-size:.48rem;letter-spacing:.15em}.crm-detail-item strong{display:block;margin-top:7px;font-size:.68rem;font-weight:500}.crm-detail-close{position:absolute;right:16px;top:14px;width:34px;height:34px;border:1px solid rgba(245,242,236,.15);background:transparent;color:var(--white);font-size:1.4rem}
+    .crm-status-select{border:1px solid rgba(245,242,236,.12);background:#09070a;color:var(--white);padding:6px;font-size:.5rem}
+    @media(max-width:800px){.crm-stats{grid-template-columns:1fr 1fr}.crm-top{align-items:flex-start;flex-direction:column}.crm-back{align-self:flex-start}}
+    @media(max-width:520px){.crm-page{padding:95px 4vw 40px}.crm-stats{gap:8px}.crm-stat{padding:16px}.crm-stat strong{font-size:2rem}.crm-toolbar input,.crm-toolbar select{width:100%;min-width:0}.crm-detail{padding:28px 20px}.crm-detail-grid{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <main class="crm-page">
+    <div class="crm-top">
+      <div><div class="eyebrow">NOIR CLUB • MANAGEMENT</div><h1 class="crm-title">RESERVATION<br>CRM</h1><p class="crm-sub">Manage reservations, guests and table details.</p></div>
+      <a class="crm-back" href="index.html">← BACK TO WEBSITE</a>
+    </div>
+    <section class="crm-stats">
+      <div class="crm-stat"><span>TODAY</span><strong id="statToday">0</strong></div>
+      <div class="crm-stat"><span>UPCOMING</span><strong id="statUpcoming">0</strong></div>
+      <div class="crm-stat"><span>GUESTS</span><strong id="statGuests">0</strong></div>
+      <div class="crm-stat"><span>VIP</span><strong id="statVip">0</strong></div>
+    </section>
+    <section class="crm-panel">
+      <div class="crm-toolbar">
+        <input id="crmSearch" type="search" placeholder="Search name, phone or email...">
+        <input id="crmDate" type="date" aria-label="Filter by date">
+        <select id="crmType"><option value="">All table types</option><option value="Standard">Standard</option><option value="VIP">VIP</option></select>
+        <select id="crmStatus"><option value="">All statuses</option><option>Confirmed</option><option>Pending</option><option>Cancelled</option></select>
+        <button class="crm-action" id="crmClearFilters" type="button">CLEAR</button>
+      </div>
+      <div class="crm-table-wrap">
+        <table class="crm-table">
+          <thead><tr><th>DATE</th><th>GUESTS</th><th>GUEST</th><th>CONTACT</th><th>DRINK</th><th>BOTTLES</th><th>TABLE</th><th>STATUS</th><th></th></tr></thead>
+          <tbody id="crmBody"></tbody>
+        </table>
+      </div>
+      <div class="crm-empty" id="crmEmpty" hidden>No reservations found.</div>
+    </section>
+  </main>
+  <div class="crm-modal" id="crmModal" aria-hidden="true">
+    <div class="crm-modal-bg" data-close-crm></div>
+    <div class="crm-detail">
+      <button class="crm-detail-close" type="button" data-close-crm>×</button>
+      <div class="eyebrow">RESERVATION DETAILS</div><h2 id="detailName">Guest</h2>
+      <div class="crm-detail-grid" id="detailGrid"></div>
+    </div>
+  </div>
+  <script>
+    const body=document.getElementById('crmBody'), empty=document.getElementById('crmEmpty'), modal=document.getElementById('crmModal');
+    const search=document.getElementById('crmSearch'), date=document.getElementById('crmDate'), type=document.getElementById('crmType'), status=document.getElementById('crmStatus');
+    let reservations=[];
+    function load(){try{reservations=JSON.parse(localStorage.getItem('noirReservations')||'[]')}catch{reservations=[]}}
+    function statusFor(r){return r.status||'Confirmed'}
+    function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]))}
+    function renderStats(){
+      const today=new Date().toISOString().split('T')[0];
+      const upcoming=reservations.filter(r=>r.date>=today&&statusFor(r)!=='Cancelled');
+      document.getElementById('statToday').textContent=reservations.filter(r=>r.date===today&&statusFor(r)!=='Cancelled').length;
+      document.getElementById('statUpcoming').textContent=upcoming.length;
+      document.getElementById('statGuests').textContent=upcoming.reduce((sum,r)=>sum+(parseInt(r.guests)||0),0);
+      document.getElementById('statVip').textContent=upcoming.filter(r=>r.table==='VIP').length;
+    }
+    function render(){
+      const q=search.value.trim().toLowerCase();
+      const rows=reservations.map((r,i)=>({...r,_i:i})).filter(r=>(!q||[r.name,r.phone,r.email].join(' ').toLowerCase().includes(q))&&(!date.value||r.date===date.value)&&(!type.value||r.table===type.value)&&(!status.value||statusFor(r)===status.value)).sort((a,b)=>(a.date||'').localeCompare(b.date||''));
+      body.innerHTML=rows.map(r=>`<tr>
+        <td>${esc(r.date||'—')}</td><td>${esc(r.guests||'—')}</td><td class="crm-name">${esc(r.name||'—')}</td>
+        <td><div>${esc(r.phone||'—')}</div><div class="crm-muted">${esc(r.email||'—')}</div></td>
+        <td>${esc(r.drink||'—')}</td><td>${esc(r.bottles||'—')}</td>
+        <td><span class="crm-badge ${r.table==='VIP'?'vip':''}">${esc(r.table||'—')}</span></td>
+        <td><select class="crm-status-select" data-status="${r._i}">${['Confirmed','Pending','Cancelled'].map(s=>`<option ${statusFor(r)===s?'selected':''}>${s}</option>`).join('')}</select></td>
+        <td class="crm-actions"><button class="crm-action" data-view="${r._i}">VIEW</button><button class="crm-action" data-delete="${r._i}">DELETE</button></td>
+      </tr>`).join('');
+      empty.hidden=rows.length!==0;
+      body.querySelectorAll('[data-status]').forEach(el=>el.addEventListener('change',()=>{reservations[+el.dataset.status].status=el.value;save();}));
+      body.querySelectorAll('[data-view]').forEach(el=>el.addEventListener('click',()=>view(+el.dataset.view)));
+      body.querySelectorAll('[data-delete]').forEach(el=>el.addEventListener('click',()=>{if(confirm('Delete this reservation?')){reservations.splice(+el.dataset.delete,1);save();}}));
+    }
+    function save(){localStorage.setItem('noirReservations',JSON.stringify(reservations));renderStats();render()}
+    function view(i){
+      const r=reservations[i]; if(!r)return;
+      document.getElementById('detailName').textContent=r.name||'Guest';
+      const data=[['Date',r.date],['Guests',r.guests],['Drink / Bottle',r.drink],['Bottles',r.bottles||'—'],['Table',r.table||'—'],['Phone',r.phone],['Email',r.email],['Status',statusFor(r)],['Created',r.createdAt?new Date(r.createdAt).toLocaleString('en-GB'):'—']];
+      document.getElementById('detailGrid').innerHTML=data.map(x=>`<div class="crm-detail-item"><span>${esc(x[0])}</span><strong>${esc(x[1]||'—')}</strong></div>`).join('');
+      modal.classList.add('open');modal.setAttribute('aria-hidden','false');
+    }
+    function close(){modal.classList.remove('open');modal.setAttribute('aria-hidden','true')}
+    [search,date,type,status].forEach(x=>x.addEventListener('input',render));
+    document.getElementById('crmClearFilters').addEventListener('click',()=>{search.value='';date.value='';type.value='';status.value='';render()});
+    document.querySelectorAll('[data-close-crm]').forEach(x=>x.addEventListener('click',close));
+    document.addEventListener('keydown',e=>{if(e.key==='Escape')close()});
+    load();renderStats();render();
+  </script>
+</body>
+</html>
