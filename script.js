@@ -76,6 +76,8 @@ const bottleCountField = reservationForm?.querySelector('#bottleCountField');
 const bottleCount = reservationForm?.querySelector('#bottleCount');
 const tableTypeField = reservationForm?.querySelector('#tableTypeField');
 const tableType = reservationForm?.querySelector('#tableType');
+const vipOption = reservationForm?.querySelector('#vipOption');
+const vipNote = reservationForm?.querySelector('#vipNote');
 
 function resetReservationView() {
   if (!reservationForm || !reservationSuccess) return;
@@ -87,6 +89,8 @@ function resetReservationView() {
 
 function updateBottleOptionsVisibility() {
   const bottleSelected = drinkType?.value === 'Bottle';
+  const bottleValue = bottleCount?.value || '';
+  const vipAllowed = bottleValue === '4+';
 
   if (bottleCountField) {
     bottleCountField.hidden = !bottleSelected;
@@ -109,9 +113,22 @@ function updateBottleOptionsVisibility() {
     tableType.required = bottleSelected;
     if (!bottleSelected) tableType.value = '';
   }
+
+  if (vipOption) {
+    vipOption.disabled = bottleSelected && !vipAllowed;
+    if (!vipAllowed && tableType?.value === 'VIP') {
+      tableType.value = '';
+    }
+  }
+
+  if (vipNote) {
+    vipNote.hidden = !bottleSelected || vipAllowed;
+    vipNote.textContent = 'VIP tables require 4+ bottles.';
+  }
 }
 
 drinkType?.addEventListener('change', updateBottleOptionsVisibility);
+bottleCount?.addEventListener('change', updateBottleOptionsVisibility);
 
 function openReservation() {
   resetReservationView();
