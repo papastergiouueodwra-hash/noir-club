@@ -71,17 +71,13 @@
       <button class="reservation-close" type="button" aria-label="Close reservation" data-close-reservation>×</button>
       <div class="eyebrow">NOIR CLUB • THESSALONIKI</div>
       <h2 id="reservationTitle">RESERVE<br>YOUR TABLE</h2>
-      <p class="reservation-intro">Tell us a few details and we'll take care of the rest.</p>
+      <p class="reservation-intro">Choose your night, your table and your bottle.</p>
 
       <form id="reservationForm">
         <div class="form-grid">
           <label>
             <span>DATE</span>
             <input type="date" name="date" required>
-          </label>
-          <label>
-            <span>ARRIVAL TIME</span>
-            <input type="time" name="time" required>
           </label>
           <label>
             <span>GUESTS</span>
@@ -100,9 +96,16 @@
             <span>TABLE TYPE</span>
             <select name="table" required>
               <option value="" selected disabled>Select</option>
-              <option>Standard Table</option>
-              <option>VIP Table</option>
-              <option>VIP Lounge</option>
+              <option>Standard</option>
+              <option>VIP</option>
+            </select>
+          </label>
+          <label>
+            <span>DRINK / BOTTLE</span>
+            <select name="drink" required>
+              <option value="" selected disabled>Select</option>
+              <option>Drinks</option>
+              <option>Bottle</option>
             </select>
           </label>
         </div>
@@ -123,13 +126,12 @@
         </div>
 
         <button class="gold-button reservation-submit" type="submit">CONFIRM RESERVATION</button>
-        <p class="reservation-note">No prepayment required. Payment is made at the club.</p>
       </form>
 
       <div class="reservation-success" id="reservationSuccess" hidden>
         <div class="success-mark">✓</div>
-        <h3>REQUEST RECEIVED</h3>
-        <p>Thank you. Your reservation request has been recorded. We'll contact you to confirm your table.</p>
+        <h3>RESERVATION RECEIVED</h3>
+        <p id="reservationSuccessText">Thank you. We look forward to welcoming you at 23:30.<br>NOIR CLUB • Thessaloniki</p>
         <button class="gold-button" type="button" data-close-reservation>BACK TO NOIR</button>
       </div>
     </div>
