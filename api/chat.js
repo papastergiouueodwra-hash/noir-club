@@ -15,6 +15,8 @@ LANGUAGE:
 NOIR CLUB FACTS:
 - Location: Thessaloniki, Greece.
 - Music: House, R&B, Hip-Hop, Greek and international music.
+- Bottle prices: Standard bottles start from €90. Premium bottles are up to €150.
+- Do not invent any other bottle price or product-specific pricing.
 - Reservations are free.
 - No prepayment or deposit is required for a reservation.
 - Guests can pay at the club by cash or card.
