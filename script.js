@@ -71,8 +71,23 @@ const reservationForm = document.querySelector('#reservationForm');
 const reservationSuccess = document.querySelector('#reservationSuccess');
 const reservationSuccessText = document.querySelector('#reservationSuccessText');
 const reservationDate = reservationForm?.querySelector('input[name="date"]');
+const drinkType = reservationForm?.querySelector('#drinkType');
+const tableTypeField = reservationForm?.querySelector('#tableTypeField');
+const tableType = reservationForm?.querySelector('#tableType');
+
+function updateTableTypeVisibility() {
+  const bottleSelected = drinkType?.value === 'Bottle';
+  if (tableTypeField) tableTypeField.hidden = !bottleSelected;
+  if (tableType) {
+    tableType.required = bottleSelected;
+    if (!bottleSelected) tableType.value = '';
+  }
+}
+
+drinkType?.addEventListener('change', updateTableTypeVisibility);
 
 function openReservation() {
+  updateTableTypeVisibility();
   reservationModal.classList.add('open');
   reservationModal.setAttribute('aria-hidden', 'false');
   document.body.style.overflow = 'hidden';
@@ -96,6 +111,7 @@ document.querySelectorAll('[data-close-reservation]').forEach(button => {
       reservationForm.reset();
       reservationForm.hidden = false;
       reservationSuccess.hidden = true;
+      updateTableTypeVisibility();
     }
   });
 });
