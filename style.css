@@ -46,6 +46,32 @@ button,a{font:inherit}button{cursor:pointer}a{color:inherit;text-decoration:none
 footer{min-height:180px;padding:50px 7vw;display:flex;align-items:center;justify-content:space-between;gap:20px;border-top:1px solid rgba(245,242,236,.08);color:rgba(245,242,236,.5);font-size:.65rem;letter-spacing:.18em}
 footer strong{color:var(--white);font-family:'Cormorant Garamond',serif;font-size:1.3rem;font-weight:600;letter-spacing:.2em}footer small{color:rgba(201,92,255,.6)}
 
+.reservation-modal{position:fixed;inset:0;z-index:100;display:none;align-items:center;justify-content:center;padding:30px}
+.reservation-modal.open{display:flex}
+.reservation-backdrop{position:absolute;inset:0;background:rgba(0,0,0,.78);backdrop-filter:blur(12px)}
+.reservation-dialog{position:relative;z-index:1;width:min(760px,100%);max-height:90vh;overflow:auto;padding:46px;background:linear-gradient(145deg,#0b080d,#050505);border:1px solid var(--line);box-shadow:0 0 55px rgba(201,92,255,.18)}
+.reservation-close{position:absolute;top:18px;right:20px;width:36px;height:36px;border:1px solid rgba(245,242,236,.18);background:transparent;color:var(--white);font-size:1.6rem;line-height:1;transition:.25s}
+.reservation-close:hover{border-color:var(--gold);color:var(--gold-bright)}
+.reservation-dialog .eyebrow{margin-bottom:14px}
+.reservation-dialog h2{font-family:'Cormorant Garamond',serif;font-size:clamp(3.2rem,7vw,5.6rem);font-weight:500;line-height:.8}
+.reservation-intro{margin-top:18px;color:var(--muted);font-size:.78rem;line-height:1.7}
+#reservationForm{margin-top:30px}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.form-grid label{display:flex;flex-direction:column;gap:8px}
+.form-grid label span{color:var(--gold);font-size:.58rem;font-weight:600;letter-spacing:.18em}
+.form-grid input,.form-grid select{width:100%;height:48px;border:1px solid rgba(245,242,236,.18);outline:none;background:rgba(255,255,255,.035);color:var(--white);padding:0 14px;font-size:.75rem;font-family:Montserrat,sans-serif}
+.form-grid input:focus,.form-grid select:focus{border-color:var(--gold);box-shadow:0 0 14px rgba(201,92,255,.12)}
+.form-grid select option{background:#0b080d;color:var(--white)}
+.contact-grid{margin-top:18px}
+.full-field{grid-column:1/-1}
+.reservation-submit{margin-top:26px}
+.reservation-note{margin-top:14px;color:rgba(245,242,236,.5);font-size:.58rem;letter-spacing:.05em}
+.reservation-success{text-align:center;padding:20px 10px 5px}
+.success-mark{width:58px;height:58px;margin:0 auto 20px;display:grid;place-items:center;border:1px solid var(--gold);border-radius:50%;color:var(--gold-bright);font-size:1.5rem;box-shadow:0 0 25px rgba(201,92,255,.2)}
+.reservation-success h3{font-family:'Cormorant Garamond',serif;font-size:2.2rem;font-weight:500;letter-spacing:.06em}
+.reservation-success p{max-width:500px;margin:14px auto 0;color:var(--muted);font-size:.78rem;line-height:1.7}
+.reservation-success .gold-button{margin:28px auto 0}
+
 @media(min-width:701px){
 .reserve-section,.assistant-section{min-height:70vh;padding:9vh 5vw}
 .reserve-section,.assistant-section{width:50%}
@@ -63,6 +89,7 @@ main::after{content:'';display:block;clear:both}
 .arrow{width:42px;height:42px;font-size:1.5rem}.prev{left:4vw}.next{right:4vw}.dots{left:6vw;bottom:4vh}
 .reserve-section,.assistant-section{min-height:68vh;padding:10vh 6vw}.reserve-section h2,.assistant-section h2{font-size:clamp(3.2rem,15vw,5.2rem)}
 .reserve-section p,.assistant-section>p{font-size:.82rem;margin-top:28px}.assistant-section .assistant-prompt{margin-top:16px;font-size:.52rem;letter-spacing:.14em}.language-buttons{flex-direction:column}
+.reservation-modal{padding:16px}.reservation-dialog{padding:36px 22px 28px;max-height:92vh}.form-grid{grid-template-columns:1fr}.full-field{grid-column:auto}
 footer{min-height:220px;padding:42px 6vw;flex-direction:column;align-items:flex-start}
 }
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.hero-slide{transition:opacity .2s ease;transform:none}}
