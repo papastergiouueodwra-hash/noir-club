@@ -58,12 +58,38 @@
       <div class="language-card">
         <span>SELECT LANGUAGE</span>
         <div class="language-buttons">
-          <button type="button">ENGLISH</button>
-          <button type="button">ΕΛΛΗΝΙΚΑ</button>
+          <button type="button" data-language="en">ENGLISH</button>
+          <button type="button" data-language="el">ΕΛΛΗΝΙΚΑ</button>
         </div>
       </div>
     </section>
   </main>
+
+  <div class="assistant-modal" id="assistantModal" aria-hidden="true">
+    <div class="assistant-backdrop" data-close-assistant></div>
+    <div class="assistant-dialog" role="dialog" aria-modal="true" aria-labelledby="assistantTitle">
+      <button class="assistant-close" type="button" aria-label="Close assistant" data-close-assistant>×</button>
+
+      <div class="assistant-header">
+        <div>
+          <div class="eyebrow">NOIR CLUB • DIGITAL CONCIERGE</div>
+          <h2 id="assistantTitle">NOIR<br>ASSISTANT</h2>
+        </div>
+        <div class="assistant-status"><span></span> ONLINE</div>
+      </div>
+
+      <div class="assistant-chat" id="assistantChat" aria-live="polite"></div>
+
+      <div class="assistant-typing" id="assistantTyping" hidden>
+        <span></span><span></span><span></span>
+      </div>
+
+      <form class="assistant-input" id="assistantForm">
+        <input id="assistantMessage" type="text" autocomplete="off" placeholder="Ask NOIR anything..." aria-label="Message">
+        <button type="submit" aria-label="Send message">→</button>
+      </form>
+    </div>
+  </div>
 
   <div class="reservation-modal" id="reservationModal" aria-hidden="true">
     <div class="reservation-backdrop" data-close-reservation></div>
