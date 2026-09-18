@@ -48,7 +48,7 @@
       <div class="eyebrow">THESSALONIKI • NIGHTLIFE</div>
       <h2>RESERVE<br>YOUR TABLE</h2>
       <p>Choose your night. Choose your table. We'll take care of the rest.</p>
-      <button class="gold-button" type="button">START RESERVATION</button>
+      <button class="gold-button" id="startReservation" type="button">START RESERVATION</button>
     </section>
 
     <section id="assistant" class="assistant-section">
@@ -64,6 +64,76 @@
       </div>
     </section>
   </main>
+
+  <div class="reservation-modal" id="reservationModal" aria-hidden="true">
+    <div class="reservation-backdrop" data-close-reservation></div>
+    <div class="reservation-dialog" role="dialog" aria-modal="true" aria-labelledby="reservationTitle">
+      <button class="reservation-close" type="button" aria-label="Close reservation" data-close-reservation>×</button>
+      <div class="eyebrow">NOIR CLUB • THESSALONIKI</div>
+      <h2 id="reservationTitle">RESERVE<br>YOUR TABLE</h2>
+      <p class="reservation-intro">Tell us a few details and we'll take care of the rest.</p>
+
+      <form id="reservationForm">
+        <div class="form-grid">
+          <label>
+            <span>DATE</span>
+            <input type="date" name="date" required>
+          </label>
+          <label>
+            <span>ARRIVAL TIME</span>
+            <input type="time" name="time" required>
+          </label>
+          <label>
+            <span>GUESTS</span>
+            <select name="guests" required>
+              <option value="" selected disabled>Select</option>
+              <option>2</option>
+              <option>3</option>
+              <option>4</option>
+              <option>5</option>
+              <option>6</option>
+              <option>7</option>
+              <option>8+</option>
+            </select>
+          </label>
+          <label>
+            <span>TABLE TYPE</span>
+            <select name="table" required>
+              <option value="" selected disabled>Select</option>
+              <option>Standard Table</option>
+              <option>VIP Table</option>
+              <option>VIP Lounge</option>
+            </select>
+          </label>
+        </div>
+
+        <div class="form-grid contact-grid">
+          <label>
+            <span>FULL NAME</span>
+            <input type="text" name="name" placeholder="Your name" required>
+          </label>
+          <label>
+            <span>PHONE</span>
+            <input type="tel" name="phone" placeholder="+30" required>
+          </label>
+          <label class="full-field">
+            <span>EMAIL</span>
+            <input type="email" name="email" placeholder="you@example.com" required>
+          </label>
+        </div>
+
+        <button class="gold-button reservation-submit" type="submit">CONFIRM RESERVATION</button>
+        <p class="reservation-note">No prepayment required. Payment is made at the club.</p>
+      </form>
+
+      <div class="reservation-success" id="reservationSuccess" hidden>
+        <div class="success-mark">✓</div>
+        <h3>REQUEST RECEIVED</h3>
+        <p>Thank you. Your reservation request has been recorded. We'll contact you to confirm your table.</p>
+        <button class="gold-button" type="button" data-close-reservation>BACK TO NOIR</button>
+      </div>
+    </div>
+  </div>
 
   <footer>
     <strong>NOIR CLUB</strong>
