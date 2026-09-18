@@ -116,14 +116,8 @@ function updateBottleOptionsVisibility() {
 
   if (vipOption) {
     vipOption.disabled = bottleSelected && !vipAllowed;
-
-    if (vipAllowed) {
-      vipOption.disabled = false;
-    }
-
-    if (!vipAllowed && tableType?.value === 'VIP') {
-      tableType.value = '';
-    }
+    if (vipAllowed) vipOption.disabled = false;
+    if (!vipAllowed && tableType?.value === 'VIP') tableType.value = '';
   }
 
   if (vipNote) {
@@ -161,8 +155,9 @@ document.querySelectorAll('[data-close-reservation]').forEach(button => {
 });
 
 document.addEventListener('keydown', e => {
-  if (e.key === 'Escape' && reservationModal.classList.contains('open')) {
-    closeReservation();
+  if (e.key === 'Escape') {
+    if (reservationModal?.classList.contains('open')) closeReservation();
+    if (assistantModal?.classList.contains('open')) closeAssistant();
   }
 });
 
@@ -190,6 +185,116 @@ reservationForm?.addEventListener('submit', e => {
 
   reservationForm.hidden = true;
   reservationSuccess.hidden = false;
+});
+
+/* AI ASSISTANT */
+const assistantModal = document.querySelector('#assistantModal');
+const assistantChat = document.querySelector('#assistantChat');
+const assistantForm = document.querySelector('#assistantForm');
+const assistantMessage = document.querySelector('#assistantMessage');
+const assistantTyping = document.querySelector('#assistantTyping');
+const languageButtons = [...document.querySelectorAll('[data-language]')];
+
+let assistantLanguage = null;
+let assistantMessages = [];
+
+function addChatMessage(role, content) {
+  const row = document.createElement('div');
+  row.className = `chat-row ${role}`;
+
+  const bubble = document.createElement('div');
+  bubble.className = 'chat-bubble';
+
+  const label = document.createElement('div');
+  label.className = 'chat-label';
+  label.textContent = role === 'user' ? 'YOU' : 'NOIR ASSISTANT';
+
+  const text = document.createElement('div');
+  text.textContent = content;
+
+  bubble.append(label, text);
+  row.appendChild(bubble);
+  assistantChat.appendChild(row);
+  assistantChat.scrollTop = assistantChat.scrollHeight;
+}
+
+function openAssistant(language) {
+  assistantLanguage = language;
+  assistantMessages = [];
+  assistantChat.innerHTML = '';
+
+  const greeting = language === 'el'
+    ? 'Καλώς ήρθες στο NOIR CLUB. Πώς μπορώ να σε βοηθήσω; Μπορείς να με ρωτήσεις για κρατήσεις, τραπέζια, VIP, μπουκάλια ή οτιδήποτε άλλο σχετικά με το club.'
+    : 'Welcome to NOIR CLUB. How can I help you? Ask me about reservations, tables, VIP, bottles or anything else about the club.';
+
+  assistantMessages.push({ role: 'assistant', content: greeting });
+  addChatMessage('assistant', greeting);
+
+  assistantModal.classList.add('open');
+  assistantModal.setAttribute('aria-hidden', 'false');
+  document.body.style.overflow = 'hidden';
+  setTimeout(() => assistantMessage?.focus(), 100);
+}
+
+function closeAssistant() {
+  assistantModal.classList.remove('open');
+  assistantModal.setAttribute('aria-hidden', 'true');
+  document.body.style.overflow = '';
+}
+
+languageButtons.forEach(button => {
+  button.addEventListener('click', () => openAssistant(button.dataset.language));
+});
+
+document.querySelectorAll('[data-close-assistant]').forEach(button => {
+  button.addEventListener('click', closeAssistant);
+});
+
+assistantForm?.addEventListener('submit', async e => {
+  e.preventDefault();
+
+  const message = assistantMessage.value.trim();
+  if (!message || !assistantLanguage) return;
+
+  addChatMessage('user', message);
+  assistantMessages.push({ role: 'user', content: message });
+  assistantMessage.value = '';
+  assistantMessage.disabled = true;
+  assistantTyping.hidden = false;
+
+  try {
+    const response = await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        language: assistantLanguage,
+        messages: assistantMessages
+      })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || 'Assistant request failed.');
+    }
+
+    const reply = data.message || (assistantLanguage === 'el'
+      ? 'Συγγνώμη, δεν μπόρεσα να απαντήσω αυτή τη στιγμή.'
+      : 'Sorry, I could not answer right now.');
+
+    assistantMessages.push({ role: 'assistant', content: reply });
+    addChatMessage('assistant', reply);
+  } catch (error) {
+    const errorMessage = assistantLanguage === 'el'
+      ? 'Υπήρξε ένα προσωρινό πρόβλημα. Παρακαλώ δοκίμασε ξανά.'
+      : 'There was a temporary problem. Please try again.';
+
+    addChatMessage('assistant', errorMessage);
+  } finally {
+    assistantTyping.hidden = true;
+    assistantMessage.disabled = false;
+    assistantMessage.focus();
+  }
 });
 
 showSlide(0);
