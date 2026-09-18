@@ -53,7 +53,7 @@ footer strong{color:var(--white);font-family:'Cormorant Garamond',serif;font-siz
 .assistant-section{float:right;border-top:0;border-left:1px solid var(--gold);border-left-width:2px}
 main::after{content:'';display:block;clear:both}
 .reserve-section h2{font-size:clamp(4rem,6vw,7rem)}
-.assistant-section h2{font-size:clamp(3.5rem,5vw,6rem)}
+.assistant-section h2{font-size:clamp(3rem,4vw,5rem)}
 .reserve-section p,.assistant-section>p{max-width:430px}
 .language-card{width:100%}
 }
@@ -62,7 +62,7 @@ main::after{content:'';display:block;clear:both}
 .nav{height:68px;padding:0 5vw}.logo{font-size:1.55rem}.nav-cta{padding:10px 15px;font-size:.58rem}
 .hero{height:50vh;min-height:360px;max-height:500px}.hero-content{left:6vw;bottom:10vh}.hero-content h1{font-size:clamp(4.7rem,22vw,8rem)}.hero-content p{font-size:.56rem;letter-spacing:.32em}
 .arrow{width:42px;height:42px;font-size:1.5rem}.prev{left:4vw}.next{right:4vw}.dots{left:6vw;bottom:4vh}
-.reserve-section,.assistant-section{min-height:68vh;padding:10vh 6vw}.reserve-section h2{font-size:clamp(4.2rem,20vw,7rem)}.assistant-section h2{font-size:clamp(3.6rem,17vw,6rem)}
+.reserve-section,.assistant-section{min-height:68vh;padding:10vh 6vw}.reserve-section h2{font-size:clamp(4.2rem,20vw,7rem)}.assistant-section h2{font-size:clamp(3.2rem,15vw,5.2rem)}
 .reserve-section p,.assistant-section>p{font-size:.82rem;margin-top:28px}.assistant-section .assistant-prompt{margin-top:16px;font-size:.52rem;letter-spacing:.14em}.language-buttons{flex-direction:column}
 footer{min-height:220px;padding:42px 6vw;flex-direction:column;align-items:flex-start}
 }
