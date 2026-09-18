@@ -39,9 +39,30 @@
     .crm-status-select{border:1px solid rgba(245,242,236,.12);background:#09070a;color:var(--white);padding:6px;font-size:.5rem}
     @media(max-width:800px){.crm-stats{grid-template-columns:1fr 1fr}.crm-top{align-items:flex-start;flex-direction:column}.crm-back{align-self:flex-start}}
     @media(max-width:520px){.crm-page{padding:95px 4vw 40px}.crm-stats{gap:8px}.crm-stat{padding:16px}.crm-stat strong{font-size:2rem}.crm-toolbar input,.crm-toolbar select{width:100%;min-width:0}.crm-detail{padding:28px 20px}.crm-detail-grid{grid-template-columns:1fr}}
+    .crm-login{position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;padding:20px;background:radial-gradient(circle at 50% 20%,rgba(201,92,255,.12),transparent 45%),#09070a}
+    .crm-login-card{width:min(430px,100%);padding:42px 34px;border:1px solid var(--line);background:rgba(255,255,255,.025);box-shadow:0 0 60px rgba(201,92,255,.12);text-align:center}
+    .crm-login-card h1{font-family:'Cormorant Garamond',serif;font-size:3.8rem;font-weight:500;line-height:.85;margin:18px 0 12px}
+    .crm-login-card p{color:var(--muted);font-size:.65rem;line-height:1.7;margin-bottom:25px}
+    .crm-login-card input{width:100%;height:48px;border:1px solid rgba(245,242,236,.15);background:#09070a;color:var(--white);padding:0 14px;font:500 .68rem Montserrat,sans-serif;outline:none;margin-bottom:12px}
+    .crm-login-card input:focus{border-color:var(--gold)}
+    .crm-login-card button{width:100%;height:48px;border:1px solid var(--gold);background:rgba(201,92,255,.08);color:var(--gold-bright);font:600 .6rem Montserrat,sans-serif;letter-spacing:.18em;cursor:pointer}
+    .crm-login-error{min-height:18px;margin:10px 0 0;color:#ffb4b4;font-size:.58rem}
+    .crm-logout{margin-left:7px}
   </style>
 </head>
 <body>
+  <div class="crm-login" id="crmLogin" hidden>
+    <div class="crm-login-card">
+      <div class="eyebrow">NOIR CLUB • PRIVATE ACCESS</div>
+      <h1>CRM<br>LOGIN</h1>
+      <p>Enter the management password to access reservations and guest information.</p>
+      <form id="crmLoginForm">
+        <input id="crmPassword" type="password" autocomplete="current-password" placeholder="CRM PASSWORD" required>
+        <button type="submit">ENTER CRM</button>
+      </form>
+      <div class="crm-login-error" id="crmLoginError" aria-live="polite"></div>
+    </div>
+  </div>
   <main class="crm-page">
     <div class="crm-top">
       <div><div class="eyebrow">NOIR CLUB • MANAGEMENT</div><h1 class="crm-title">RESERVATION<br>CRM</h1><p class="crm-sub">Manage reservations, guests and table details.</p></div>
@@ -83,6 +104,10 @@
     const search=document.getElementById('crmSearch'), date=document.getElementById('crmDate'), type=document.getElementById('crmType'), status=document.getElementById('crmStatus');
     let reservations=[];
     let loading=true;
+    const login=document.getElementById('crmLogin');
+    const loginForm=document.getElementById('crmLoginForm');
+    const passwordInput=document.getElementById('crmPassword');
+    const loginError=document.getElementById('crmLoginError');
 
     function statusFor(r){return r.status||'Confirmed'}
     function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]))}
@@ -91,6 +116,7 @@
       loading=true;
       try{
         const response=await fetch('/api/reservations', {cache:'no-store'});
+        if(response.status===401){ showLogin(); return; }
         const data=await response.json();
         if(!response.ok) throw new Error(data.error||'Could not load reservations.');
         reservations=Array.isArray(data.reservations)?data.reservations:[];
@@ -188,7 +214,41 @@
     document.getElementById('crmClearFilters').addEventListener('click',()=>{search.value='';date.value='';type.value='';status.value='';render()});
     document.querySelectorAll('[data-close-crm]').forEach(x=>x.addEventListener('click',close));
     document.addEventListener('keydown',e=>{if(e.key==='Escape')close()});
-    load();
+    async function checkAuth(){
+      try{
+        const response=await fetch('/api/crm-auth',{cache:'no-store'});
+        const data=await response.json();
+        if(data.authenticated){ login.hidden=true; load(); }
+        else showLogin();
+      }catch{ showLogin(); }
+    }
+
+    function showLogin(){
+      login.hidden=false;
+      setTimeout(()=>passwordInput?.focus(),50);
+    }
+
+    loginForm.addEventListener('submit',async e=>{
+      e.preventDefault();
+      loginError.textContent='';
+      const button=loginForm.querySelector('button');
+      button.disabled=true;
+      try{
+        const response=await fetch('/api/crm-auth',{
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({password:passwordInput.value})
+        });
+        const data=await response.json();
+        if(!response.ok) throw new Error(data.error||'Login failed.');
+        passwordInput.value='';
+        login.hidden=true;
+        load();
+      }catch(error){ loginError.textContent=error.message||'Incorrect password.'; }
+      finally{ button.disabled=false; }
+    });
+
+    checkAuth();
   </script>
 </body>
 </html>
