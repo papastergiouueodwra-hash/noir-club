@@ -26,9 +26,17 @@ function showSlide(index) {
   dots.forEach((dot, i) => dot.classList.toggle('active', i === current));
 }
 
+function getSlideDuration(index) {
+  if (index === 0) return 4000;
+  return 5000;
+}
+
 function restartTimer() {
-  clearInterval(timer);
-  timer = setInterval(() => showSlide(current + 1), 5000);
+  clearTimeout(timer);
+  timer = setTimeout(() => {
+    showSlide(current + 1);
+    restartTimer();
+  }, getSlideDuration(current));
 }
 
 prev.addEventListener('click', () => {
