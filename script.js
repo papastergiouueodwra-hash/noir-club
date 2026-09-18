@@ -8,11 +8,9 @@ let timer;
 
 function showSlide(index) {
   current = (index + slides.length) % slides.length;
-
   slides.forEach((slide, i) => {
     slide.classList.toggle('active', i === current);
     const video = slide.querySelector('video');
-
     if (video) {
       if (i === current) {
         video.currentTime = 0;
@@ -22,13 +20,11 @@ function showSlide(index) {
       }
     }
   });
-
   dots.forEach((dot, i) => dot.classList.toggle('active', i === current));
 }
 
 function getSlideDuration(index) {
-  if (index === 0) return 4000;
-  return 5000;
+  return index === 0 ? 4000 : 5000;
 }
 
 function restartTimer() {
@@ -57,15 +53,12 @@ dots.forEach((dot, i) => {
 });
 
 let touchStartX = 0;
-
 document.querySelector('.hero').addEventListener('touchstart', e => {
   touchStartX = e.changedTouches[0].screenX;
 }, { passive: true });
 
 document.querySelector('.hero').addEventListener('touchend', e => {
-  const touchEndX = e.changedTouches[0].screenX;
-  const distance = touchEndX - touchStartX;
-
+  const distance = e.changedTouches[0].screenX - touchStartX;
   if (Math.abs(distance) > 50) {
     showSlide(distance < 0 ? current + 1 : current - 1);
     restartTimer();
@@ -76,13 +69,13 @@ const reservationModal = document.querySelector('#reservationModal');
 const startReservation = document.querySelector('#startReservation');
 const reservationForm = document.querySelector('#reservationForm');
 const reservationSuccess = document.querySelector('#reservationSuccess');
+const reservationSuccessText = document.querySelector('#reservationSuccessText');
 const reservationDate = reservationForm?.querySelector('input[name="date"]');
 
 function openReservation() {
   reservationModal.classList.add('open');
   reservationModal.setAttribute('aria-hidden', 'false');
   document.body.style.overflow = 'hidden';
-
   if (reservationDate && !reservationDate.value) {
     reservationDate.min = new Date().toISOString().split('T')[0];
   }
@@ -97,7 +90,14 @@ function closeReservation() {
 startReservation?.addEventListener('click', openReservation);
 
 document.querySelectorAll('[data-close-reservation]').forEach(button => {
-  button.addEventListener('click', closeReservation);
+  button.addEventListener('click', () => {
+    closeReservation();
+    if (reservationForm.hidden) {
+      reservationForm.reset();
+      reservationForm.hidden = false;
+      reservationSuccess.hidden = true;
+    }
+  });
 });
 
 document.addEventListener('keydown', e => {
@@ -117,13 +117,19 @@ reservationForm?.addEventListener('submit', e => {
   savedReservations.push(reservation);
   localStorage.setItem('noirReservations', JSON.stringify(savedReservations));
 
+  const formattedDate = new Date(reservation.date + 'T00:00:00').toLocaleDateString('en-GB', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric'
+  });
+
+  reservationSuccessText.innerHTML =
+    'Your table is reserved for ' + formattedDate + '.<br>' +
+    'We look forward to welcoming you at <strong>23:30</strong>.<br>' +
+    '<span>NOIR CLUB • 25 Mitropoleos Street, Thessaloniki</span>';
+
   reservationForm.hidden = true;
   reservationSuccess.hidden = false;
-});
-
-document.querySelector('[data-close-reservation]')?.addEventListener('click', () => {
-  reservationForm.hidden = false;
-  reservationSuccess.hidden = true;
 });
 
 showSlide(0);
