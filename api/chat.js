@@ -66,7 +66,7 @@ export default async function handler(req, res) {
         instructions: SYSTEM_PROMPT + '\\n' + languageInstruction,
         input: safeMessages.map(m => ({
           role: m.role,
-          content: [{ type: 'input_text', text: m.content }]
+          content: m.content
         })),
         max_output_tokens: 350
       })
