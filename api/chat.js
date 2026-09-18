@@ -82,8 +82,18 @@ export default async function handler(req, res) {
       });
     }
 
+    const reply = Array.isArray(data.output)
+      ? data.output
+          .filter(item => item?.type === 'message')
+          .flatMap(item => Array.isArray(item.content) ? item.content : [])
+          .filter(item => item?.type === 'output_text' && typeof item.text === 'string')
+          .map(item => item.text)
+          .join('\n')
+          .trim()
+      : '';
+
     return res.status(200).json({
-      message: data.output_text || 'I’m sorry, I couldn’t generate a response.'
+      message: reply || 'I’m sorry, I couldn’t generate a response.'
     });
   } catch (error) {
     return res.status(500).json({ error: 'Something went wrong. Please try again.' });
