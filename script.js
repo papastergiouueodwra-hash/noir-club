@@ -72,5 +72,59 @@ document.querySelector('.hero').addEventListener('touchend', e => {
   }
 }, { passive: true });
 
+const reservationModal = document.querySelector('#reservationModal');
+const startReservation = document.querySelector('#startReservation');
+const reservationForm = document.querySelector('#reservationForm');
+const reservationSuccess = document.querySelector('#reservationSuccess');
+const reservationDate = reservationForm?.querySelector('input[name="date"]');
+
+function openReservation() {
+  reservationModal.classList.add('open');
+  reservationModal.setAttribute('aria-hidden', 'false');
+  document.body.style.overflow = 'hidden';
+
+  if (reservationDate && !reservationDate.value) {
+    reservationDate.min = new Date().toISOString().split('T')[0];
+  }
+}
+
+function closeReservation() {
+  reservationModal.classList.remove('open');
+  reservationModal.setAttribute('aria-hidden', 'true');
+  document.body.style.overflow = '';
+}
+
+startReservation?.addEventListener('click', openReservation);
+
+document.querySelectorAll('[data-close-reservation]').forEach(button => {
+  button.addEventListener('click', closeReservation);
+});
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && reservationModal.classList.contains('open')) {
+    closeReservation();
+  }
+});
+
+reservationForm?.addEventListener('submit', e => {
+  e.preventDefault();
+
+  const formData = new FormData(reservationForm);
+  const reservation = Object.fromEntries(formData.entries());
+  reservation.createdAt = new Date().toISOString();
+
+  const savedReservations = JSON.parse(localStorage.getItem('noirReservations') || '[]');
+  savedReservations.push(reservation);
+  localStorage.setItem('noirReservations', JSON.stringify(savedReservations));
+
+  reservationForm.hidden = true;
+  reservationSuccess.hidden = false;
+});
+
+document.querySelector('[data-close-reservation]')?.addEventListener('click', () => {
+  reservationForm.hidden = false;
+  reservationSuccess.hidden = true;
+});
+
 showSlide(0);
 restartTimer();
