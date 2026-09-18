@@ -76,11 +76,11 @@ const tableTypeField = reservationForm?.querySelector('#tableTypeField');
 const tableType = reservationForm?.querySelector('#tableType');
 
 function updateTableTypeVisibility() {
-  const bottleSelected = drinkType?.value === 'Bottle';
-  if (tableTypeField) tableTypeField.hidden = !bottleSelected;
+  const drinkSelected = drinkType?.value === 'Drinks';
+  if (tableTypeField) tableTypeField.hidden = !drinkSelected;
   if (tableType) {
-    tableType.required = bottleSelected;
-    if (!bottleSelected) tableType.value = '';
+    tableType.required = drinkSelected;
+    if (!drinkSelected) tableType.value = '';
   }
 }
 
