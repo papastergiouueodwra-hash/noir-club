@@ -69,7 +69,6 @@ const reservationModal = document.querySelector('#reservationModal');
 const startReservation = document.querySelector('#startReservation');
 const reservationForm = document.querySelector('#reservationForm');
 const reservationSuccess = document.querySelector('#reservationSuccess');
-const reservationSuccessText = document.querySelector('#reservationSuccessText');
 const reservationDate = reservationForm?.querySelector('input[name="date"]');
 const drinkType = reservationForm?.querySelector('#drinkType');
 const bottleCountField = reservationForm?.querySelector('#bottleCountField');
