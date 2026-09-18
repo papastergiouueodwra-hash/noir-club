@@ -2,9 +2,18 @@ import { neon } from '@neondatabase/serverless';
 
 const sql = neon(process.env.DATABASE_URL);
 
+import crypto from 'node:crypto';
+
 function authenticated(req) {
+  if (!process.env.CRM_SESSION_SECRET) return false;
   const cookie = String(req.headers.cookie || '').split(';').find(c => c.trim().startsWith('noir_crm_session='));
-  return Boolean(cookie);
+  const token = cookie ? decodeURIComponent(cookie.trim().slice('noir_crm_session='.length)) : '';
+  const [payload, sig] = token.split('.');
+  if (!payload || !sig || !/^[0-9a-f]{64}$/.test(sig)) return false;
+  const expected = crypto.createHmac('sha256', process.env.CRM_SESSION_SECRET).update(payload).digest('hex');
+  if (!crypto.timingSafeEqual(Buffer.from(sig), Buffer.from(expected))) return false;
+  try { return JSON.parse(Buffer.from(payload, 'base64url').toString()).exp > Date.now(); }
+  catch { return false; }
 }
 
 function clean(value) {
