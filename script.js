@@ -286,8 +286,8 @@ assistantForm?.addEventListener('submit', async e => {
     addChatMessage('assistant', reply);
   } catch (error) {
     const errorMessage = assistantLanguage === 'el'
-      ? 'Υπήρξε ένα προσωρινό πρόβλημα. Παρακαλώ δοκίμασε ξανά.'
-      : 'There was a temporary problem. Please try again.';
+      ? 'Παρουσιάστηκε σφάλμα σύνδεσης με το AI: ' + (error.message || 'Άγνωστο σφάλμα.')
+      : 'AI connection error: ' + (error.message || 'Unknown error.');
 
     addChatMessage('assistant', errorMessage);
   } finally {
