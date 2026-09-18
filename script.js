@@ -72,6 +72,8 @@ const reservationSuccess = document.querySelector('#reservationSuccess');
 const reservationSuccessText = document.querySelector('#reservationSuccessText');
 const reservationDate = reservationForm?.querySelector('input[name="date"]');
 const drinkType = reservationForm?.querySelector('#drinkType');
+const bottleCountField = reservationForm?.querySelector('#bottleCountField');
+const bottleCount = reservationForm?.querySelector('#bottleCount');
 const tableTypeField = reservationForm?.querySelector('#tableTypeField');
 const tableType = reservationForm?.querySelector('#tableType');
 
@@ -80,16 +82,27 @@ function resetReservationView() {
   reservationForm.reset();
   reservationForm.hidden = false;
   reservationSuccess.hidden = true;
-  updateTableTypeVisibility();
+  updateBottleOptionsVisibility();
 }
 
-function updateTableTypeVisibility() {
+function updateBottleOptionsVisibility() {
   const bottleSelected = drinkType?.value === 'Bottle';
+
+  if (bottleCountField) {
+    bottleCountField.hidden = !bottleSelected;
+    bottleCountField.style.display = bottleSelected ? '' : 'none';
+    bottleCountField.setAttribute('aria-hidden', bottleSelected ? 'false' : 'true');
+  }
 
   if (tableTypeField) {
     tableTypeField.hidden = !bottleSelected;
     tableTypeField.style.display = bottleSelected ? '' : 'none';
     tableTypeField.setAttribute('aria-hidden', bottleSelected ? 'false' : 'true');
+  }
+
+  if (bottleCount) {
+    bottleCount.required = bottleSelected;
+    if (!bottleSelected) bottleCount.value = '';
   }
 
   if (tableType) {
@@ -98,11 +111,11 @@ function updateTableTypeVisibility() {
   }
 }
 
-drinkType?.addEventListener('change', updateTableTypeVisibility);
+drinkType?.addEventListener('change', updateBottleOptionsVisibility);
 
 function openReservation() {
   resetReservationView();
-  updateTableTypeVisibility();
+  updateBottleOptionsVisibility();
   reservationModal.classList.add('open');
   reservationModal.setAttribute('aria-hidden', 'false');
   document.body.style.overflow = 'hidden';
