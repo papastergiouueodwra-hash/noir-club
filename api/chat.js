@@ -76,7 +76,9 @@ export default async function handler(req, res) {
 
     if (!response.ok) {
       return res.status(response.status).json({
-        error: data?.error?.message || 'AI request failed.'
+        error: data?.error?.message || 'AI request failed.',
+        type: data?.error?.type || null,
+        code: data?.error?.code || null
       });
     }
 
