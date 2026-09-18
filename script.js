@@ -90,7 +90,7 @@ function resetReservationView() {
 function updateBottleOptionsVisibility() {
   const bottleSelected = drinkType?.value === 'Bottle';
   const bottleValue = bottleCount?.value || '';
-  const vipAllowed = bottleValue === '4+';
+  const vipAllowed = bottleValue === '3' || bottleValue === '4+';
 
   if (bottleCountField) {
     bottleCountField.hidden = !bottleSelected;
@@ -123,7 +123,7 @@ function updateBottleOptionsVisibility() {
 
   if (vipNote) {
     vipNote.hidden = !bottleSelected || vipAllowed;
-    vipNote.textContent = 'VIP tables require 4+ bottles.';
+    vipNote.textContent = 'VIP tables require 3+ bottles.';
   }
 }
 
