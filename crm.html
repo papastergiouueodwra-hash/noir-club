@@ -82,9 +82,29 @@
     const body=document.getElementById('crmBody'), empty=document.getElementById('crmEmpty'), modal=document.getElementById('crmModal');
     const search=document.getElementById('crmSearch'), date=document.getElementById('crmDate'), type=document.getElementById('crmType'), status=document.getElementById('crmStatus');
     let reservations=[];
-    function load(){try{reservations=JSON.parse(localStorage.getItem('noirReservations')||'[]')}catch{reservations=[]}}
+    let loading=true;
+
     function statusFor(r){return r.status||'Confirmed'}
     function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]))}
+
+    async function load(){
+      loading=true;
+      try{
+        const response=await fetch('/api/reservations', {cache:'no-store'});
+        const data=await response.json();
+        if(!response.ok) throw new Error(data.error||'Could not load reservations.');
+        reservations=Array.isArray(data.reservations)?data.reservations:[];
+      }catch(error){
+        reservations=[];
+        empty.hidden=false;
+        empty.textContent=error.message||'Could not load reservations.';
+      }finally{
+        loading=false;
+        renderStats();
+        render();
+      }
+    }
+
     function renderStats(){
       const today=new Date().toISOString().split('T')[0];
       const upcoming=reservations.filter(r=>r.date>=today&&statusFor(r)!=='Cancelled');
@@ -93,36 +113,82 @@
       document.getElementById('statGuests').textContent=upcoming.reduce((sum,r)=>sum+(parseInt(r.guests)||0),0);
       document.getElementById('statVip').textContent=upcoming.filter(r=>r.table==='VIP').length;
     }
+
     function render(){
       const q=search.value.trim().toLowerCase();
-      const rows=reservations.map((r,i)=>({...r,_i:i})).filter(r=>(!q||[r.name,r.phone,r.email].join(' ').toLowerCase().includes(q))&&(!date.value||r.date===date.value)&&(!type.value||r.table===type.value)&&(!status.value||statusFor(r)===status.value)).sort((a,b)=>(a.date||'').localeCompare(b.date||''));
+      const rows=reservations.filter(r=>
+        (!q||[r.name,r.phone,r.email].join(' ').toLowerCase().includes(q))&&
+        (!date.value||r.date===date.value)&&
+        (!type.value||r.table===type.value)&&
+        (!status.value||statusFor(r)===status.value)
+      );
+
       body.innerHTML=rows.map(r=>`<tr>
         <td>${esc(r.date||'—')}</td><td>${esc(r.guests||'—')}</td><td class="crm-name">${esc(r.name||'—')}</td>
         <td><div>${esc(r.phone||'—')}</div><div class="crm-muted">${esc(r.email||'—')}</div></td>
         <td>${esc(r.drink||'—')}</td><td>${esc(r.bottles||'—')}</td>
         <td><span class="crm-badge ${r.table==='VIP'?'vip':''}">${esc(r.table||'—')}</span></td>
-        <td><select class="crm-status-select" data-status="${r._i}">${['Confirmed','Pending','Cancelled'].map(s=>`<option ${statusFor(r)===s?'selected':''}>${s}</option>`).join('')}</select></td>
-        <td class="crm-actions"><button class="crm-action" data-view="${r._i}">VIEW</button><button class="crm-action" data-delete="${r._i}">DELETE</button></td>
+        <td><select class="crm-status-select" data-status="${esc(r.id)}">${['Confirmed','Pending','Cancelled'].map(s=>`<option ${statusFor(r)===s?'selected':''}>${s}</option>`).join('')}</select></td>
+        <td class="crm-actions"><button class="crm-action" data-view="${esc(r.id)}">VIEW</button><button class="crm-action" data-delete="${esc(r.id)}">DELETE</button></td>
       </tr>`).join('');
-      empty.hidden=rows.length!==0;
-      body.querySelectorAll('[data-status]').forEach(el=>el.addEventListener('change',()=>{reservations[+el.dataset.status].status=el.value;save();}));
-      body.querySelectorAll('[data-view]').forEach(el=>el.addEventListener('click',()=>view(+el.dataset.view)));
-      body.querySelectorAll('[data-delete]').forEach(el=>el.addEventListener('click',()=>{if(confirm('Delete this reservation?')){reservations.splice(+el.dataset.delete,1);save();}}));
+
+      empty.hidden=loading||rows.length!==0;
+      if(!rows.length&&!loading) empty.textContent='No reservations found.';
+
+      body.querySelectorAll('[data-status]').forEach(el=>el.addEventListener('change',async()=>{
+        const id=el.dataset.status;
+        el.disabled=true;
+        try{
+          const response=await fetch('/api/reservations?id='+encodeURIComponent(id),{
+            method:'PATCH',
+            headers:{'Content-Type':'application/json'},
+            body:JSON.stringify({status:el.value})
+          });
+          const data=await response.json();
+          if(!response.ok) throw new Error(data.error||'Could not update status.');
+          const index=reservations.findIndex(r=>String(r.id)===String(id));
+          if(index>=0) reservations[index]=data.reservation;
+          renderStats(); render();
+        }catch(error){
+          alert(error.message||'Could not update status.');
+          render();
+        }
+      }));
+
+      body.querySelectorAll('[data-view]').forEach(el=>el.addEventListener('click',()=>view(el.dataset.view)));
+      body.querySelectorAll('[data-delete]').forEach(el=>el.addEventListener('click',async()=>{
+        if(!confirm('Delete this reservation?')) return;
+        const id=el.dataset.delete;
+        el.disabled=true;
+        try{
+          const response=await fetch('/api/reservations?id='+encodeURIComponent(id),{method:'DELETE'});
+          if(!response.ok){
+            const data=await response.json().catch(()=>({}));
+            throw new Error(data.error||'Could not delete reservation.');
+          }
+          reservations=reservations.filter(r=>String(r.id)!==String(id));
+          renderStats(); render();
+        }catch(error){
+          alert(error.message||'Could not delete reservation.');
+          render();
+        }
+      }));
     }
-    function save(){localStorage.setItem('noirReservations',JSON.stringify(reservations));renderStats();render()}
-    function view(i){
-      const r=reservations[i]; if(!r)return;
+
+    function view(id){
+      const r=reservations.find(item=>String(item.id)===String(id)); if(!r)return;
       document.getElementById('detailName').textContent=r.name||'Guest';
       const data=[['Date',r.date],['Guests',r.guests],['Drink / Bottle',r.drink],['Bottles',r.bottles||'—'],['Table',r.table||'—'],['Phone',r.phone],['Email',r.email],['Status',statusFor(r)],['Created',r.createdAt?new Date(r.createdAt).toLocaleString('en-GB'):'—']];
       document.getElementById('detailGrid').innerHTML=data.map(x=>`<div class="crm-detail-item"><span>${esc(x[0])}</span><strong>${esc(x[1]||'—')}</strong></div>`).join('');
       modal.classList.add('open');modal.setAttribute('aria-hidden','false');
     }
+
     function close(){modal.classList.remove('open');modal.setAttribute('aria-hidden','true')}
     [search,date,type,status].forEach(x=>x.addEventListener('input',render));
     document.getElementById('crmClearFilters').addEventListener('click',()=>{search.value='';date.value='';type.value='';status.value='';render()});
     document.querySelectorAll('[data-close-crm]').forEach(x=>x.addEventListener('click',close));
     document.addEventListener('keydown',e=>{if(e.key==='Escape')close()});
-    load();renderStats();render();
+    load();
   </script>
 </body>
 </html>
