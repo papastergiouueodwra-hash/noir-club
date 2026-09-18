@@ -178,11 +178,7 @@ reservationForm?.addEventListener('submit', e => {
     year: 'numeric'
   });
 
-  reservationSuccessText.innerHTML =
-    'Your table is reserved for ' + formattedDate + '.<br>' +
-    'We look forward to welcoming you at <strong>23:30</strong>.<br>' +
-    '<span>NOIR CLUB • 25 Mitropoleos Street, Thessaloniki</span>';
-
+  // Confirmation copy is intentionally fixed and premium; the reserved date remains stored in localStorage.
   reservationForm.hidden = true;
   reservationSuccess.hidden = false;
 });
